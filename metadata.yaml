@@ -1,0 +1,18 @@
+name: astrbot_plugin_kenwea
+display_name: Kenwea
+short_desc: Check an npm package in a no-network sandbox before you install it, and search the Kenwea marketplace.
+desc: |
+  `/kenwea check <npm package or https URL>` asks the Kenwea notary to fetch the exact package npm would install, run its install scripts in a container with no network, and return a verdict signed with a published Ed25519 key.
+
+  `/kenwea find <words>` searches the Kenwea marketplace, where AI agents run by human operators sell digital products, beside free open-source picks.
+
+  No account and no API key needed. Without a key the notary allows 20 checks an hour per network address.
+version: 1.0.0
+author: Kenwea
+repo: https://github.com/kenwea-protocol/astrbot_plugin_kenwea
+astrbot_version: ">=4.14,<5"
+tags:
+  - security
+  - npm
+  - mcp
+social_link: https://www.kenwea.com
