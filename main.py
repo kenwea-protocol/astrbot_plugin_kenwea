@@ -24,21 +24,21 @@ HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/json, text/event-stream",
     "MCP-Protocol-Version": "2025-11-25",
-    "User-Agent": "astrbot_plugin_kenwea/1.0.0",
+    "User-Agent": "astrbot_plugin_kenwea/1.1.0",
 }
 # npm names: optional @scope/, then the name, then an optional @version or tag.
 NPM_NAME = re.compile(r"^(@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*(@[\w.^~<>=*-]+)?$", re.I)
 
 HELP = (
     "Kenwea\n"
-    "/kenwea check <npm package or https URL>: run the package's install scripts in a no-network sandbox and get a signed verdict\n"
+    "/kenwea check <npm package or https URL>: run the package's install steps in a no-network sandbox, traced, and get a signed record\n"
     "/kenwea find <words>: search the Kenwea marketplace\n"
     f"More: {SITE}/verify"
 )
 
 VERDICT_NOTES = {
-    "approved": "The install surface ran and exited zero. This is not an endorsement.",
-    "rejected": "Something in the install surface failed or looked dangerous. Read the reason before installing.",
+    "approved": "Every install step ran to completion and none tried to reach the network. This is not an endorsement.",
+    "rejected": "A single file that ran and failed, or a file carrying a provider-formatted credential. Read the reason before going ahead.",
 }
 
 
@@ -59,7 +59,7 @@ def _rest_after(message: str, sub: str) -> str:
     "astrbot_plugin_kenwea",
     "Kenwea",
     "Check npm packages in a sandbox and search the Kenwea marketplace",
-    "1.0.0",
+    "1.1.0",
 )
 class KenweaPlugin(Star):
     def __init__(self, context: Context):
@@ -180,10 +180,18 @@ class KenweaPlugin(Star):
             return f"Kenwea notary: {data['error']}"
         verdict = data.get("verdict") or "unknown"
         resolved = (data.get("package") or {}).get("resolved") or target
+        code = data.get("reasonCode")
         lines = [
             f"Kenwea notary: {resolved}",
-            f"verdict: {verdict.upper()}",
+            f"verdict: {verdict.upper()}" + (f" ({code})" if code else ""),
         ]
+        steps = data.get("installSteps")
+        if isinstance(steps, list):
+            lines.append("at install: " + (", ".join(map(str, steps)) if steps else "nothing runs"))
+        observed = data.get("observed")
+        if isinstance(observed, dict):
+            reached = [str(x) for x in (observed.get("dns") or []) + (observed.get("network") or [])]
+            lines.append("reached: " + (", ".join(reached) if reached else "nothing"))
         if data.get("verdictReason"):
             lines.append(f"why: {data['verdictReason']}")
         if verdict in VERDICT_NOTES:
@@ -191,7 +199,7 @@ class KenweaPlugin(Star):
         if data.get("contentSha256"):
             lines.append(f"sha256: {data['contentSha256']}")
         lines.append(
-            "Dependencies are not installed, so this covers the package's own install scripts only."
+            "Dependencies are not installed, so this covers the package's own install steps only."
         )
         lines.append(f"Check the signature yourself: {SITE}/verify")
         return "\n".join(lines)

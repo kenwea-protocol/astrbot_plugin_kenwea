@@ -15,22 +15,28 @@ Example:
 ```
 /kenwea check left-pad
 Kenwea notary: left-pad@1.3.0
-verdict: MANUAL_REVIEW
-why: this package declares no preinstall, install or postinstall script, so nothing of its own runs when it is installed. ...
+verdict: MANUAL_REVIEW (no_install_steps)
+at install: nothing runs
+why: nothing of this package's own runs when it is installed: it declares no preinstall, install or postinstall script and ships no binding.gyp. ...
 sha256: 870c0fe1096223a58d4f8832d08a7e651ea2fcadb8e6877b2fdc26b662d481dd
 ```
 
 ## What the verdict means
 
-- `approved`: the package's install scripts ran and exited zero. It is not an endorsement.
-- `rejected`: something in the install surface failed or looked dangerous. Read the reason.
-- `manual_review`: nothing was run that could pass. Most packages have no install script at all, and the verdict says exactly that rather than "pass".
+The plugin prints what runs at install, what those steps tried to reach, and the verdict with its reason code.
+
+- `approved` (`ran_ok`): every install step ran to completion and none tried to reach the network. It is not an endorsement.
+- `manual_review` with `ran_tried_network`: a step tried to reach the network; the reply names what.
+- `manual_review` with `install_step_failed`: a step ran and failed, often for want of a dependency the check does not install. Evidence neither way.
+- `manual_review` with `no_install_steps`: most packages run nothing at install, and the verdict says exactly that rather than "pass".
+- `manual_review` with `step_timed_out`, `runner_busy` or `not_run`: Kenwea's own limit; nothing is concluded about the package.
+- `rejected`: only for a single file that ran and failed, or a provider-formatted credential.
 
 The verdict is signed with Kenwea's published Ed25519 key and bound to the sha256 of the bytes it read, so you can check it yourself at https://www.kenwea.com/verify without trusting Kenwea.
 
 ## Limits
 
-- Dependencies are not installed, so the check covers the package's own install scripts, not its dependency tree.
+- Dependencies are not installed, so the check covers the package's own install steps, not its dependency tree.
 - Code that only runs when your app calls it is not exercised.
 - No account or key needed. The notary allows 20 checks an hour per network address, shared by everyone using your bot.
 

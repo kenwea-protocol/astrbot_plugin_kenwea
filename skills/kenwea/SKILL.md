@@ -11,15 +11,20 @@ Use this skill when the user is about to install an npm package they do not alre
 
 Run the plugin command `/kenwea check <package-name>` (an https URL to a file, an npm tarball or a Python wheel also works), or, if the Kenwea notary MCP server is connected, call its `kenwea.notary.check` tool with `package` or `artifactRef`.
 
-Kenwea fetches the exact bytes npm would install, runs the package's own install scripts in a container with no network, no capabilities and a read-only filesystem, and returns a verdict signed with Kenwea's published Ed25519 key, bound to the sha256 of what it read.
+Kenwea fetches the exact bytes npm would install, runs the install steps npm would run in a container with no network, no capabilities, a read-only filesystem and no root, traces what each step attempts, and returns a record signed with Kenwea's published Ed25519 key and bound to the sha256 of what it read.
 
-Read the verdict this way:
+Read the result this way (the plugin prints `at install`, `reached` and the reason code):
 
-- `approved`: the install surface ran and exited zero. Not an endorsement, and not a statement that the code is good.
-- `rejected`: something in the install surface failed or looked dangerous. Show the user the reason before going ahead.
-- `manual_review`: Kenwea did not run anything it could pass. Read the `why` line. Most often the package declares no install script, so nothing of its own runs at install time; other times it names a limit on Kenwea's side. Tell the user which.
+- `at install` (`installSteps`) is what runs when the package is installed; "nothing runs" means nothing of its own does.
+- `reached` and `started` (`observed`) are what those steps attempted: network addresses, DNS names and programs.
+- `approved` (`ran_ok`): every install step ran to completion and none tried to reach the network. Not an endorsement and not a statement that the code is good or safe for this use; a script written to notice it is being watched can stay quiet.
+- `manual_review` with `ran_tried_network`: a step tried to reach the network. Tell the user what it reached and ask before installing.
+- `manual_review` with `install_step_failed`: a step ran and failed. Dependencies are not installed, so this is often for want of one; the output shows which. It is evidence neither way, so say that.
+- `manual_review` with `no_install_steps`: nothing of the package's own runs at install. Useful to know, and not a pass.
+- `manual_review` with `step_timed_out`, `runner_busy` or `not_run`: Kenwea's own limit stopped or skipped the run. Say so; nothing is concluded about the package.
+- `rejected`: only for a single file that ran and failed, or a file carrying a provider-formatted credential. Show the user the reason before going ahead.
 
-Always tell the user the limits: dependencies are not installed, so the check covers the package's own install scripts and not its dependency tree, and code that runs only when the app calls it is not exercised. Without a key the limit is 20 checks an hour per network address.
+Always tell the user the limits: dependencies are not installed, so the check covers the package's own install steps and not its dependency tree, and code that runs only when the app calls it is not exercised. Without a key the limit is 20 checks an hour per network address.
 
 ## Search the marketplace
 

@@ -2,14 +2,14 @@ name: astrbot_plugin_kenwea
 display_name: Kenwea
 short_desc: 安装 npm 包之前，在无网络沙箱中检查它的安装脚本，并搜索 Kenwea 市场。Check an npm package in a no-network sandbox before you install it.
 desc: |
-  `/kenwea check <npm 包名或 https 链接>`：Kenwea 公证服务获取 npm 实际会安装的文件，在无网络的容器中运行它的安装脚本，并返回用公开 Ed25519 密钥签名的结论。`/kenwea find <关键词>`：搜索 Kenwea 市场。无需账号和 API 密钥，每个网络地址每小时最多 20 次检查。
+  `/kenwea check <npm 包名或 https 链接>`：Kenwea 公证服务获取 npm 实际会安装的文件，在无网络的容器中运行它的安装步骤并记录每一步尝试访问的网络地址，返回用公开 Ed25519 密钥签名的结论。`/kenwea find <关键词>`：搜索 Kenwea 市场。无需账号和 API 密钥，每个网络地址每小时最多 20 次检查。
 
-  `/kenwea check <npm package or https URL>` asks the Kenwea notary to fetch the exact package npm would install, run its install scripts in a container with no network, and return a verdict signed with a published Ed25519 key.
+  `/kenwea check <npm package or https URL>` asks the Kenwea notary to fetch the exact package npm would install, run its install steps in a container with no network, record what each step tried to reach, and return a verdict signed with a published Ed25519 key.
 
   `/kenwea find <words>` searches the Kenwea marketplace, where AI agents run by human operators sell digital products, beside free open-source picks.
 
   No account and no API key needed. Without a key the notary allows 20 checks an hour per network address.
-version: 1.0.0
+version: 1.1.0
 author: Kenwea
 repo: https://github.com/kenwea-protocol/astrbot_plugin_kenwea
 astrbot_version: ">=4.14,<5"
