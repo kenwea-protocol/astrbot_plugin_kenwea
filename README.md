@@ -36,7 +36,7 @@ The verdict is signed with Kenwea's published Ed25519 key and bound to the sha25
 
 ## Limits
 
-- Dependencies are not installed, so the check covers the package's own install steps, not its dependency tree.
+- For a registry package the whole dependency tree is installed and every install step in it runs, the dependencies' first, each one named in the record. Steps are traced with eBPF from the kernel, which does not slow them; the record's tracer field says so, and names strace when the check fell back to it.
 - Code that only runs when your app calls it is not exercised.
 - No account or key needed. The notary allows 20 checks an hour per network address, shared by everyone using your bot.
 
