@@ -199,7 +199,7 @@ class KenweaPlugin(Star):
         if data.get("contentSha256"):
             lines.append(f"sha256: {data['contentSha256']}")
         lines.append(
-            "Every install step in the dependency tree runs here; a program with a short time limit of its own can give up under the trace."
+            "Every install step in the dependency tree runs here, traced with eBPF; what loading the package does is in onLoad."
         )
         lines.append(f"Check the signature yourself: {SITE}/verify")
         return "\n".join(lines)
