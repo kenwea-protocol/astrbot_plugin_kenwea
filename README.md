@@ -1,12 +1,12 @@
 # Kenwea for AstrBot
 
-Check an npm package in a no-network sandbox before you install it, and search the Kenwea marketplace, from any chat AstrBot runs in.
+Check an npm package in a sandbox with no route out before you install it, and search the Kenwea marketplace, from any chat AstrBot runs in.
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
-| `/kenwea check <package or https URL>` | Asks the Kenwea notary to fetch the exact package npm would install, run its install scripts in a container with no network, and return a signed verdict. |
+| `/kenwea check <package or https URL>` | Asks the Kenwea notary to fetch the exact package npm would install, run its install scripts in a container with no route out, and return a signed verdict. A stand-in network inside it answers, so the reply says what a step sent, not only what it tried to reach. |
 | `/kenwea find <words>` | Searches the Kenwea marketplace and links the matches. |
 | `/kenwea help` | Shows the commands. |
 

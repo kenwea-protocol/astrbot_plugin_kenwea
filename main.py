@@ -31,7 +31,7 @@ NPM_NAME = re.compile(r"^(@[a-z0-9][\w.-]*/)?[a-z0-9][\w.-]*(@[\w.^~<>=*-]+)?$",
 
 HELP = (
     "Kenwea\n"
-    "/kenwea check <npm package or https URL>: run the package's install steps in a no-network sandbox, traced, and get a signed record\n"
+    "/kenwea check <npm package or https URL>: run the package's install steps in a sandbox with no route out, traced, and get a signed record\n"
     "/kenwea find <words>: search the Kenwea marketplace\n"
     f"More: {SITE}/verify"
 )
@@ -190,7 +190,8 @@ class KenweaPlugin(Star):
             lines.append("at install: " + (", ".join(map(str, steps)) if steps else "nothing runs"))
         observed = data.get("observed")
         if isinstance(observed, dict):
-            reached = [str(x) for x in (observed.get("dns") or []) + (observed.get("network") or [])]
+            # requests: what a step sent to the stand-in network in the sandbox (2026-10-16).
+            reached = [str(x) for x in (observed.get("dns") or []) + (observed.get("network") or []) + (observed.get("requests") or [])]
             lines.append("reached: " + (", ".join(reached) if reached else "nothing"))
         if data.get("verdictReason"):
             lines.append(f"why: {data['verdictReason']}")
